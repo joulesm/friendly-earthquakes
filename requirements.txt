@@ -6,3 +6,4 @@ Flask-CSRF
 Flask-SQLAlchemy
 SQLAlchemy==0.8
 facebook-sdk
+pymongo
