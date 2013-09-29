@@ -17,7 +17,7 @@ def get_latlong(eq):
         lat = feature['geometry']['coordinates'][1]
         mag = feature['properties']['mag']
         print place + "- longitude: " + str(lon) + " , latitude: " + str(lat) + " , magnitude: " +str(mag)
-        eqData.append((lat,lon, mag))
+        eqData.append((lon, lat, mag))
     return eqData
 
 if __name__ == "__main__":
