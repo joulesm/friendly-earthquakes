@@ -5,7 +5,7 @@ import json
 import logging
 import datetime
 import get_earthquakes as eq
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -19,9 +19,13 @@ def main_page():
 
 @app.route('/add_data', methods = ['POST'])
 def add_data():
-    user_data = json.loads(request.form['user'])
-    friend_list = user_data['friends']
-    for friend in friend_list:
+    client_data = json.loads(request.form['json_data'])
+    friend_ids = map(lambda x: x['fb_id'], client_data['friends'])
+    client_data['user']['friends'] = friend_ids
+    db.users.update({'fb_id': client_data['user']['fb_id']}, client_data['user'], upsert=True)
+    for friend in client_data['friends']:
+        db.friends.update({'fb_id': friend['fb_id']}, friend, upsert=True)
+    return "Success!"
     
 @app.route('/alert_risky_people', methods = ['POST'])
 def alert_risky_people():
