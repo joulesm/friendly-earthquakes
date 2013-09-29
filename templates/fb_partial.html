@@ -19,7 +19,7 @@
       // The response object is returned with a status field that lets the app know the current
       // login status of the person. In this case, we're handling the situation where they 
       // have logged in to the app.
-      fetchFriends();
+      fetchFBData();
     } else if (response.status === 'not_authorized') {
       // In this case, the person is logged into Facebook, but not into the app, so we call
       // FB.login() to prompt them to do so. 
@@ -50,19 +50,50 @@
   }(document));
 
 
-  function fetchFriends() {
-    FB.api({
-        method: 'fql.query',
-        query: 'select name, uid, pic_small, current_location from user where uid in (select uid2 from friend where uid1 = me())'
-    }, function(data) {
+  function fetchFBData() {
 
-          console.log(data.filter(function(o) {
-                      return Boolean(o.current_location);
-                    }));
-          console.log(data);
-          // showFriends(data);
-        }
-    );
+    FB.api('/me', function(data) {
+      // 
+      console.log(data);
+      console.log('email? ', data.email);
+
+      var userObj = {
+        name: data.name,
+        email: data.email,
+        fb_id: data.id
+      };
+
+      FB.api({
+          method: 'fql.query',
+          query: 'select name, uid, pic_small, current_location from user where uid in (select uid2 from friend where uid1 = me())'
+      }, function(data) {
+        // Filter out friends who don't have a location listed. Screw 'em!
+        data = data.filter(function(o) {
+          return Boolean(o.current_location);
+        });
+        // Transform to server data structure
+        var friends = data.map(function(o) {
+          return {
+            name: o.name,
+            fb_id: o.uid,
+            coords: [
+              o.current_location.latitude,
+              o.current_location.longitude
+            ],
+            pic_url: o.pic_small
+          };
+        });
+        $.ajax({
+          type:'POST',
+          url:'/add_data',
+          dataType:'json',
+          data: {
+            'user': userObj,
+            'friends': friends
+          }
+        });
+      });
+    });
   }
 </script>
 
@@ -73,4 +104,4 @@
   Learn more about options for the login button plugin:
   /docs/reference/plugins/login/ -->
 
-<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+<fb:login-button scope="user_location,friends_location,email" show-faces="true" width="200" max-rows="1"></fb:login-button>
