@@ -8,7 +8,7 @@ db = conn.fearthquakes
 
 def get_earthquakes():
     url = 'http://comcat.cr.usgs.gov/fdsnws/event/1/query'
-    time = (datetime.datetime.utcnow() - datetime.timedelta(minutes=90)).isoformat().split('.')[0]
+    time = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat().split('.')[0]
     values = {'format': 'geojson',
               'starttime': time}
               
@@ -39,7 +39,7 @@ def save_earthquakes(eqs):
                 { "$geometry" :
                     SON(
                     { "type" : "Point" ,
-                        "$maxDistance" : 100000000.0,
+                        "$maxDistance" : 10000.0,
                         "coordinates" : [ lon, lat ] }) }
                         
                         } } )
