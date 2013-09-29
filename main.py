@@ -23,32 +23,31 @@ def add_data():
     friend_list = user_data['friends']
     for friend in friend_list:
     
-@app.route('/get_risky_friends', methods = ['POST']))
-def get_risky_friends():
-    d = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat(split('.')[0]
-    earthquake_list = db.earthquakes.find("time" : {"$lt" : d})
+@app.route('/alert_risky_people', methods = ['POST'])
+def alert_risky_people():
+    d = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat(split('.'))[0]
+    earthquake_list = db.earthquakes.find({"time" : {"$lt" : d}})
     for eq in earthquake_list:
-        lon = eq['geometry']['coordinates'][0]
-        lat = eq['geometry']['coordinates'][1]
-        risky_list = db.friends.find( { "coords" :
-                         { "$near" :
-                            { "$geometry" :
-                                { "type" : "Point" ,
-                                  "coordinates" : [ lon, lat ] } },
-                              "$maxDistance" : 100000
-                      } } )
-        id_list = [i[fb_id] for i in risky_list]
-        for risky_id in id_list:
+        for risky_id in eq.risky_list:
             users_list = db.users.find( { "friends" : risky_id } )
-            
-            
+            # ALERT USER
     
-
-
-                         
-      
-
-
+@app.route('/get_risky_friends', methods = ['POST'])
+def get_risky_friends():
+    user_data = json.loads(request.form['user'])
+    friend_id_list = db.users.find({'fb_id': user_data['user']['fb_id']})
+    d = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat(split('.'))[0]
+    earthquake_list = db.earthquakes.find({"time" : {"$lt" : d}})
+    response = []
+    for eq in earthquake_list:
+        temp_risky_friend_list = []
+        for risky_id in eq.risky_list:
+            if risky_id in friend_id_list:
+                temp_risky_friend_list.append(risky_id)
+        if temp_risky_friend_list:
+            friend_object_list = db.friends.find({"fb_id": {"$in": temp_risky_friend_list}})
+            response.append((eq, friend_object_list)) 
+    
 if __name__ == '__main__':
     app.config.update(DEBUG=True,PROPAGATE_EXCEPTIONS=True,TESTING=True)
     logging.basicConfig(level=logging.DEBUG)
