@@ -6,14 +6,13 @@
     font-family: earthquake;
     src: url('{{ url_for('static',filename='EarthquakeMF.ttf') }}');
 }
-
 body {
     width:80%;
-
     margin-left:auto;
     margin-right:auto;
 }
 h1 {
+	font-size: 36pt;
 	font-family: "earthquake";
 	text-align: center;
 }
@@ -22,9 +21,11 @@ table {
 	border-collapse: collapse;
 }
 th {
-	font: bold;
+	font-weight: bold;
+	font-size: 16pt;
 }
 td {
+	padding: 3px;
 	border: 1px solid black;
 }
 .eq {
