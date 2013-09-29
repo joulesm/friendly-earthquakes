@@ -5,6 +5,7 @@ th {
 .eq {
 }
 .friends {
+
 }
 }
 </style>
@@ -20,9 +21,9 @@ th {
 				{{ response[0].title }}
 			</td>
 			<td class="friends">
-        {% for friend in response[1] %}
-          {{ friend.name }}
-        {% endfor %}
+                {% for friend in response[1] %}
+                  <img class="friend-pic" src="{{ friend.pic_url }}"/>
+                {% endfor %}
 			</td>
 		</tr>
     {% endfor %}

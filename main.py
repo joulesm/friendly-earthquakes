@@ -65,7 +65,7 @@ def get_risky_friends():
             response_list.append((eq, friend_object_list))
 
     print "response_list:",response_list
-    print "my resp: ", render_template("risky_friends_partial.html", response_list=response_list)
+    # print "my resp: ", render_template("risky_friends_partial.html", response_list=response_list)
     return render_template("risky_friends_partial.html", response_list=response_list)
     
 if __name__ == '__main__':
