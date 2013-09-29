@@ -1,10 +1,14 @@
 import json, requests, datetime
 import config
-from pymongo import MongoClient
+from pymongo import MongoClient, GEOSPHERE, GEO2D
+from bson.son import SON
+
+conn = MongoClient(config.LOCAL_MONGO_URL)
+db = conn.fearthquakes
 
 def get_earthquakes():
     url = 'http://comcat.cr.usgs.gov/fdsnws/event/1/query'
-    time = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat().split('.')[0]
+    time = (datetime.datetime.utcnow() - datetime.timedelta(minutes=90)).isoformat().split('.')[0]
     values = {'format': 'geojson',
               'starttime': time}
               
@@ -23,8 +27,6 @@ def get_latlong(eq):
     return eqData
 
 def save_earthquakes(eqs):
-    conn = MongoClient(config.LOCAL_MONGO_URL)
-    db = conn.fearthquakes
     for eq in eqs['features']:
         earthquake = eq['properties']
         earthquake['id'] = eq['id']
@@ -35,16 +37,19 @@ def save_earthquakes(eqs):
         risky_list = db.friends.find( { "coords" :
             { "$near" :
                 { "$geometry" :
+                    SON(
                     { "type" : "Point" ,
-                        "coordinates" : [ lon, lat ] } },
-                        "$maxDistance" : 100000
+                        "$maxDistance" : 1000.0,
+                        "coordinates" : [ lon, lat ] }) }
+                        
                         } } )
-        id_list = [i[fb_id] for i in risky_list]
+        id_list = [i['fb_id'] for i in risky_list]
         earthquake['risky_list'] = id_list
             
         db.earthquakes.save(earthquake)
 
 if __name__ == "__main__":
+    db.friends.ensure_index([("coords", GEO2D)])
     eq = get_earthquakes()
     print get_latlong(eq)
     save_earthquakes(eq)

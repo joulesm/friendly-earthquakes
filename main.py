@@ -24,6 +24,11 @@ def add_data():
     client_data['user']['friends'] = friend_ids
     db.users.update({'fb_id': client_data['user']['fb_id']}, client_data['user'], upsert=True)
     for friend in client_data['friends']:
+        # friend['coords'] = {
+        #     'Longitude': friend['coords'][0],
+        #     'Latitude': friend['coords'][1]
+        # }
+        friend['coords'] = map(float,[friend['coords'][0],friend['coords'][1]])
         db.friends.update({'fb_id': friend['fb_id']}, friend, upsert=True)
     return "Success!"
     
