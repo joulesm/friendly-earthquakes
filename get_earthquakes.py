@@ -1,4 +1,6 @@
 import json, requests, datetime
+import config
+from pymongo import MongoClient
 
 def get_earthquakes():
     url = 'http://comcat.cr.usgs.gov/fdsnws/event/1/query'
@@ -20,5 +22,29 @@ def get_latlong(eq):
         eqData.append((lon, lat, mag))
     return eqData
 
+def save_earthquakes(eqs):
+    conn = MongoClient(config.LOCAL_MONGO_URL)
+    db = conn.fearthquakes
+    for eq in eqs['features']:
+        earthquake = eq['properties']
+        earthquake['id'] = eq['id']
+        earthquake['geometry'] = eq['geometry']
+        
+        lon = earthquake['geometry']['coordinates'][0]
+        lat = earthquake['geometry']['coordinates'][1]
+        risky_list = db.friends.find( { "coords" :
+            { "$near" :
+                { "$geometry" :
+                    { "type" : "Point" ,
+                        "coordinates" : [ lon, lat ] } },
+                        "$maxDistance" : 100000
+                        } } )
+        id_list = [i[fb_id] for i in risky_list]
+        earthquake['risky_list'] = id_list
+            
+        db.earthquakes.save(earthquake)
+
 if __name__ == "__main__":
-    print get_latlong(get_earthquakes())
+    eq = get_earthquakes()
+    print get_latlong(eq)
+    save_earthquakes(eq)
