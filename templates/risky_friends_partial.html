@@ -1,10 +1,30 @@
+<style>
+th {
+	font: bold;
+}
+.eq {
+}
+.friends {
+}
+}
+</style>
 <div>
+	<table>
+		<tr>
+			<th>Earthquake</th>
+			<th>Friends in danger</th>
+		</tr>
     {% for response in response_list %}
-        <div>
-            {{ response[0] }} / 
-            {% for friend in response[1] %}
-                {{ friend.name }}
-            {% endfor %}
-        </div>
+		<tr>
+			<td class="eq">
+				{{ response[0].title }}
+			</td>
+			<td class="friends">
+        {% for friend in response[1] %}
+          {{ friend.name }}
+        {% endfor %}
+			</td>
+		</tr>
     {% endfor %}
+	</table>
 </div>

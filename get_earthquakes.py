@@ -39,7 +39,7 @@ def save_earthquakes(eqs):
                 { "$geometry" :
                     SON(
                     { "type" : "Point" ,
-                        "$maxDistance" : 10000.0,
+                        "$maxDistance" : 1000.0,
                         "coordinates" : [ lon, lat ] }) }
                         
                         } } )
