@@ -47,19 +47,25 @@ def risky_friends():
 
 @app.route('/get_risky_friends', methods = ['POST'])
 def get_risky_friends():
-    user_data = json.loads(request.form['user'])
-    friend_id_list = db.users.find({'fb_id': user_data['user']['fb_id']})
-    d = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat(split('.'))[0]
-    earthquake_list = db.earthquakes.find({"time" : {"$lt" : d}})
+    user_data = request.form['user']
+    friend_id_list = db.users.find_one({'fb_id': user_data})['friends']
+    # print friend_id_list
+    d = (datetime.datetime.utcnow() - datetime.timedelta(minutes=90000)).isoformat().split('.')[0]
+    earthquake_list = db.earthquakes.find()
     response_list = []
+    print "earthquake_list: ", earthquake_list.count()
     for eq in earthquake_list:
         temp_risky_friend_list = []
-        for risky_id in eq.risky_list:
+        print "eq: ", eq
+        for risky_id in eq['risky_list']:
             if risky_id in friend_id_list:
                 temp_risky_friend_list.append(risky_id)
         if temp_risky_friend_list:
             friend_object_list = db.friends.find({"fb_id": {"$in": temp_risky_friend_list}})
             response_list.append((eq, friend_object_list))
+
+    print "response_list:",response_list
+    print "my resp: ", render_template("risky_friends_partial.html", response_list=response_list)
     return render_template("risky_friends_partial.html", response_list=response_list)
     
 if __name__ == '__main__':

@@ -39,11 +39,12 @@ def save_earthquakes(eqs):
                 { "$geometry" :
                     SON(
                     { "type" : "Point" ,
-                        "$maxDistance" : 1000.0,
+                        "$maxDistance" : 100000000.0,
                         "coordinates" : [ lon, lat ] }) }
                         
                         } } )
         id_list = [i['fb_id'] for i in risky_list]
+        print "NUM IDS:", len(id_list)
         earthquake['risky_list'] = id_list
             
         db.earthquakes.save(earthquake)

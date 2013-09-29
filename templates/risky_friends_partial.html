@@ -1,0 +1,10 @@
+<div>
+    {% for response in response_list %}
+        <div>
+            {{ response[0] }} / 
+            {% for friend in response[1] %}
+                {{ friend.name }}
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
