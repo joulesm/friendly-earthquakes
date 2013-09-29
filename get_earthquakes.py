@@ -34,15 +34,12 @@ def save_earthquakes(eqs):
         
         lon = earthquake['geometry']['coordinates'][0]
         lat = earthquake['geometry']['coordinates'][1]
-        risky_list = db.friends.find( { "coords" :
-            { "$near" :
-                { "$geometry" :
-                    SON(
-                    { "type" : "Point" ,
-                        "$maxDistance" : 10000.0,
-                        "coordinates" : [ lon, lat ] }) }
-                        
-                        } } )
+        risky_list = db.friends.find( { "coords" : 
+            SON({
+                "$maxDistance": 30.0,
+                "$near": [lat, lon]
+            })
+        }).limit(5000)
         id_list = [i['fb_id'] for i in risky_list]
         print "NUM IDS:", len(id_list)
         earthquake['risky_list'] = id_list
