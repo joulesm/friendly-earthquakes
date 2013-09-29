@@ -1,9 +1,24 @@
-import json, requests
+import json, requests, datetime
 
-url = 'http://comcat.cr.usgs.gov/fdsnws/event/1/query'
-values = {'format': 'geojson',
-          'starttime': '2013-09-28T23:00:00'}
-          
-earthquakes = requests.get(url, params=values).content
+def get_earthquakes():
+    url = 'http://comcat.cr.usgs.gov/fdsnws/event/1/query'
+    time = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat().split('.')[0]
+    values = {'format': 'geojson',
+              'starttime': time}
+              
+    earthquakes = requests.get(url, params=values).content
+    return json.loads(earthquakes)
 
-print earthquakes
+def get_latlong(eq):
+    eqData = []
+    for feature in eq['features']:
+        place = feature['properties']['place']
+        lon = feature['geometry']['coordinates'][0]
+        lat = feature['geometry']['coordinates'][1]
+        mag = feature['properties']['mag']
+        print place + "- longitude: " + str(lon) + " , latitude: " + str(lat) + " , magnitude: " +str(mag)
+        eqData.append((lat,lon, mag))
+    return eqData
+
+if __name__ == "__main__":
+    print get_latlong(get_earthquakes())
