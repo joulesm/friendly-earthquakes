@@ -40,14 +40,18 @@ def alert_risky_people():
         for risky_id in eq.risky_list:
             users_list = db.users.find( { "friends" : risky_id } )
             # ALERT USER
-    
+
+@app.route('/risky_friends')
+def risky_friends():
+    return render_template("risky_friends.html")
+
 @app.route('/get_risky_friends', methods = ['POST'])
 def get_risky_friends():
     user_data = json.loads(request.form['user'])
     friend_id_list = db.users.find({'fb_id': user_data['user']['fb_id']})
     d = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat(split('.'))[0]
     earthquake_list = db.earthquakes.find({"time" : {"$lt" : d}})
-    response = []
+    response_list = []
     for eq in earthquake_list:
         temp_risky_friend_list = []
         for risky_id in eq.risky_list:
@@ -55,7 +59,8 @@ def get_risky_friends():
                 temp_risky_friend_list.append(risky_id)
         if temp_risky_friend_list:
             friend_object_list = db.friends.find({"fb_id": {"$in": temp_risky_friend_list}})
-            response.append((eq, friend_object_list)) 
+            response_list.append((eq, friend_object_list))
+    return render_template("risky_friends_partial.html", response_list=response_list)
     
 if __name__ == '__main__':
     app.config.update(DEBUG=True,PROPAGATE_EXCEPTIONS=True,TESTING=True)
