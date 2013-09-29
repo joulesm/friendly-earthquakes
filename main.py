@@ -1,8 +1,10 @@
 from pymongo import MongoClient
 
 import config
+import json
 import logging
-import config
+import datetime
+import get_earthquakes as eq
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -14,6 +16,38 @@ db = conn.fearthquakes
 @app.route('/')
 def main_page():
     return render_template('index.html')
+
+@app.route('/add_data', methods = ['POST'])
+def add_data():
+    user_data = json.loads(request.form['user'])
+    friend_list = user_data['friends']
+    for friend in friend_list:
+    
+@app.route('/get_risky_friends', methods = ['POST']))
+def get_risky_friends():
+    d = (datetime.datetime.utcnow() - datetime.timedelta(minutes=30)).isoformat(split('.')[0]
+    earthquake_list = db.earthquakes.find("time" : {"$lt" : d})
+    for eq in earthquake_list:
+        lon = eq['geometry']['coordinates'][0]
+        lat = eq['geometry']['coordinates'][1]
+        risky_list = db.friends.find( { "coords" :
+                         { "$near" :
+                            { "$geometry" :
+                                { "type" : "Point" ,
+                                  "coordinates" : [ lon, lat ] } },
+                              "$maxDistance" : 100000
+                      } } )
+        id_list = [i[fb_id] for i in risky_list]
+        for risky_id in id_list:
+            users_list = db.users.find( { "friends" : risky_id } )
+            
+            
+    
+
+
+                         
+      
+
 
 if __name__ == '__main__':
     app.config.update(DEBUG=True,PROPAGATE_EXCEPTIONS=True,TESTING=True)
