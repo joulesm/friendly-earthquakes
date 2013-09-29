@@ -88,8 +88,10 @@
           url:'/add_data',
           dataType:'json',
           data: {
-            'user': userObj,
-            'friends': friends
+            'json_data':  JSON.stringify({
+              'user': userObj,
+              'friends': friends
+            })
           }
         });
       });
