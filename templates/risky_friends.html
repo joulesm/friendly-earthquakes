@@ -1,5 +1,29 @@
 {% extends "base.html" %}
 {% block head %}
+    <style>
+    @font-face
+    {
+        font-family: earthquake;
+        src: url('{{ url_for('static',filename='EarthquakeMF.ttf') }}');
+    }
+
+    body {
+        width:80%;
+
+        margin-left:auto;
+        margin-right:auto;
+    }
+    th {
+        font: bold;
+    }
+    .eq {
+    }
+    .friends {
+
+    }
+
+
+    </style>
     <script>
     $(document).ready(function() {
         window.fbAsyncInit = function() {
